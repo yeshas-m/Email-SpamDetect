@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define a struct to store a spam word
+typedef struct {
+  char *word;
+  int count;
+} SpamWord;
+
+// Define a function to compare two spam words
+int compare_spam_words(const void *a, const void *b) {
+  const SpamWord *spam_word_a = (const SpamWord *)a;
+  const SpamWord *spam_word_b = (const SpamWord *)b;
+  return spam_word_b->count - spam_word_a->count;
+}
+
+// Define a function to count the number of spam words in an email
+int count_spam_words(char *email, SpamWord *spam_words, int num_spam_words) {
+  int count = 0;
+  // Split the email into words
+  char *word = strtok(email, " ");
+  while (word != NULL) {
+    // Search for the word in the spam words list
+    for (int i = 0; i < num_spam_words; i++) {
+      if (strcmp(word, spam_words[i].word) == 0) {
+        // Increase the count of the spam word
+        spam_words[i].count++;
+        count++;
+        break;
+      }
+    }
+    // Get the next word
+    word = strtok(NULL, " ");
+  }
+  return count;
+}
+
+int main() {
+  // Create a list of spam words
+  SpamWord spam_words[] = {
+    {"gambling", 0},
+    {"credit", 0},
+    {"insurance", 0},
+    {"loan", 0},
+  };
+
+  // Get the email from the user
+  char email[1024];
+  printf("Enter the email: ");
+  fgets(email, sizeof(email), stdin);
+
+  // Count the number of spam words in the email
+  int count = count_spam_words(email, spam_words, sizeof(spam_words) / sizeof(SpamWord));
+
+  // Sort the spam words by count
+  qsort(spam_words, sizeof(spam_words) / sizeof(SpamWord), sizeof(SpamWord), compare_spam_words);
+
+  // Print the spam words
+  printf("The spam words in the email are:\n");
+  for (int i = 0; i < 5; i++) {
+    printf("%s (%d)\n", spam_words[i].word, spam_words[i].count);
+  }
+
+  // Determine if the email is spam or not
+  if (count > 0) {
+    printf("The email is likely spam.\n");
+  } else {
+    printf("The email is likely not spam.\n");
+  }
+
+  return 0; }
